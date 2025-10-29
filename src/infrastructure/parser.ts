@@ -1,7 +1,41 @@
 import type { LogEntry, LogLevel, AnalyzeResult, AlertEntry, Cluster } from '../domain/types'
 import type { AnalyzerSettings } from '../domain/settings'
 
+const monthMap: Record<string, number> = {
+  Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+  Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+};
+
 const patterns: { re: RegExp, toDate: (m: RegExpMatchArray, baseYear: number) => Date }[] = [
+  // ISO8601 with timezone (2025-10-29T08:15:03.412+09:00)
+  {
+    re: /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{3}))?(?:([+-]\d{2}):?(\d{2}))?/,
+    toDate: (m) => {
+      const base = `${m[1]}${m[2] ? '.' + m[2] : ''}${m[3] ? m[3] + (m[4] ?? '') : ''}`;
+      return new Date(base);
+    }
+  },
+
+  // Apache/Nginx access log: [29/Oct/2025:08:16:01 +0900]
+  {
+    re: /^\[(\d{2})\/([A-Za-z]{3})\/(\d{4}):(\d{2}):(\d{2}):(\d{2}) ([+\-]\d{4})\]/,
+    toDate: (m) => {
+      const month = monthMap[m[2]] ?? 0;
+      return new Date(`${m[3]}-${String(month + 1).padStart(2, '0')}-${m[1]}T${m[4]}:${m[5]}:${m[6]}${m[7].slice(0, 3)}:${m[7].slice(3)}`);
+    }
+  },
+
+  // Syslog: Oct 29 08:17:01
+  {
+    re: /^([A-Za-z]{3}) +(\d{1,2}) (\d{2}):(\d{2}):(\d{2})/,
+    toDate: (m, baseYear) => new Date(baseYear, monthMap[m[1]], Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]))
+  },
+
+  // Epoch timestamp (e.g. 1730161031 ...)
+  {
+    re: /^(\d{10})(?!\d)/,
+    toDate: (m) => new Date(Number(m[1]) * 1000)
+  },
   // YYYYMMDD-HH:mm:ss.SSS
   {
     re: /^(\d{8})-(\d{2}):(\d{2}):(\d{2})\.(\d{3})/,
