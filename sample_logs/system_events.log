@@ -1,0 +1,11 @@
+Oct 29 08:17:01 ip-10-0-0-12 CRON[4123]: (root) CMD (/usr/local/bin/backup --full)
+Oct 29 08:17:02 ip-10-0-0-12 kernel: [123456.789012] tcp: request_sock_TCP: Possible SYN flooding on port 443. Sending cookies.  Check SNMP counters.
+Oct 29 08:17:03 ip-10-0-0-12 systemd[1]: Started Rotate log files.
+2025-10-29T08:17:04+09:00 systemd[1]: Starting nginx.service...
+2025-10-29T08:17:04+09:00 nginx[5271]: nginx version: nginx/1.25.4 (Ubuntu)
+2025-10-29T08:17:05+09:00 nginx[5271]: [emerg] 5271#5271: bind() to 0.0.0.0:80 failed (98: Address already in use)
+2025-10-29T08:17:05+09:00 systemd[1]: nginx.service: Failed with result 'exit-code'.
+2025-10-29T08:17:06+09:00 systemd[1]: Failed to start A high performance web server and a reverse proxy server.
+1730161027 audit[sshd]: user=aiden op=login result=success rhost=203.0.113.21
+1730161031 audit[sudo]: user=root op=cmd result=success cmd="systemctl stop httpd"
+2025-10-29T08:17:12.345Z kubelet[agent-01]: NodeNotReady: disk pressure
